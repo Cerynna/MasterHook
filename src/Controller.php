@@ -8,6 +8,7 @@
 
 namespace MasterHook;
 
+use function array_rand;
 use DateTime;
 use function explode;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +30,26 @@ class Controller
     public $intent;
 
     public $action;
+
+    public $database;
+
+    /**
+     * @return mixed
+     */
+    public function getDatabase()
+    {
+        return $this->database;
+    }
+
+    /**
+     * @param mixed $database
+     * @return Controller
+     */
+    public function setDatabase($database)
+    {
+        $this->database = $database;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -121,14 +142,16 @@ class Controller
 
         if ($method == "POST" or $serverName === '127.0.0.1') {
 
+            $this->setDatabase(new FirebaseConnect());
+
             $json = json_decode(file_get_contents('php://input'));
             if ($serverName == '127.0.0.1') {
                 $json = json_decode(file_get_contents('requestFromBot.json'));
 
             }
             file_put_contents('requestFromBot.json', json_encode($json));
-            $database = new FirebaseConnect();
-            $database->getData("", $intents);
+            $this->database = new FirebaseConnect();
+            $this->database->getData("", $intents);
 
             $this->setRequest($json);
             $this->setIntent($intents);
@@ -141,9 +164,9 @@ class Controller
 
 
             $userID = $json->originalDetectIntentRequest->payload->user->userId;
-            $key = $database->getKeyUser($userID);
+            $key = $this->database->getKeyUser($userID);
 
-            $database->getData("user/$key", $user);
+            $this->database->getData("user/$key", $user);
             $actions = explode('-',$user["last_action"]) ;
 
 
@@ -151,9 +174,10 @@ class Controller
             {
                 $resPonseFromHooks = explode('-',$resPonseFromHook['action']) ;
 
-               if ($resPonseFromHooks[0] == "action" AND $resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero" ) {
-                   $this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
 
+               if ($resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero" ) {
+                   //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                   $this->setResponse($this->nextAction($actions));
                 }
 
                 if ($resPonseFromHook['action'] == "default") {
@@ -178,6 +202,20 @@ class Controller
         $str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
 
         return strtolower($str);
+    }
+    public function nextAction($actions)
+    {
+        $this->database->getData($actions[0] . "/" . $actions[1], $lists);
+
+        $key = array_rand($lists);
+
+        $returnFromBot[] =
+            [
+                "ssml" => "cPasFaux.mp3",
+                "text" => $lists[$key]["text"],
+                "action" => $actions[0] . "-" . $actions[1] . "-" . $key,
+            ];
+        return $returnFromBot;
     }
 
     public function checkIntent($intents, $type, $queryUser)
@@ -245,21 +283,21 @@ class Controller
         $json = $this->getRequest();
         $userID = $json->originalDetectIntentRequest->payload->user->userId;
 
-        $database = new FirebaseConnect();
+
         $user = new User([
             "id" => $userID
         ]);
 
-        $key = $database->getKeyUser($userID);
+        $key = $this->database->getKeyUser($userID);
         if ($key == false) {
-            $database->addUser($user);
-            $key = $database->getKeyUser($userID);
+            $this->database->addUser($user);
+            $key = $this->database->getKeyUser($userID);
         }
 
         $user->setLastAction($controllerResponse[0]['action']);
         $user->setLastUse(new DateTime('now'));
 
-        $database->updateUserKey($key, $user);
+        $this->database->updateUserKey($key, $user);
 
 
         $i = 0;
