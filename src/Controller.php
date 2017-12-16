@@ -167,17 +167,16 @@ class Controller
             $key = $this->database->getKeyUser($userID);
 
             $this->database->getData("user/$key", $user);
-            $actions = explode('-',$user["last_action"]) ;
+            $actions = explode('-', $user["last_action"]);
 
 
-            foreach ($this->getResponse() as $resPonseFromHook)
-            {
-                $resPonseFromHooks = explode('-',$resPonseFromHook['action']) ;
+            foreach ($this->getResponse() as $resPonseFromHook) {
+                $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
 
 
-               if ($resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero" ) {
-                   //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
-                   $this->setResponse($this->nextAction($actions));
+                if ($resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero") {
+                    //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                    $this->setResponse($this->nextAction($actions));
                 }
 
                 if ($resPonseFromHook['action'] == "default") {
@@ -203,6 +202,7 @@ class Controller
 
         return strtolower($str);
     }
+
     public function nextAction($actions)
     {
         $this->database->getData($actions[0] . "/" . $actions[1], $lists);
@@ -277,7 +277,7 @@ class Controller
     {
 
         $response = new \stdClass();
-        $controllerResponse = $this->getResponse();
+        $controllerResponse = array_shift($this->getResponse());
 
         $json = $this->getRequest();
         $userID = $json->originalDetectIntentRequest->payload->user->userId;
@@ -293,7 +293,8 @@ class Controller
             $key = $this->database->getKeyUser($userID);
         }
 
-        $user->setLastAction($controllerResponse[0]['action']);
+
+        $user->setLastAction($controllerResponse['action']);
         $user->setLastUse(new DateTime('now'));
 
         $this->database->updateUserKey($key, $user);
