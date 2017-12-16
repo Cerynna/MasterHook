@@ -139,9 +139,13 @@ class Controller
 
 
             $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
-            $test = $this->getResponse();
-            if ($test[0]['action'] == "default") {
-                $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+
+            foreach ($this->getResponse() as $resPonseFromHook)
+            {
+                var_dump($resPonseFromHook);
+                if ($resPonseFromHook['action'] === "default") {
+                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+                }
             }
 
         } else {
