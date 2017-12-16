@@ -96,7 +96,6 @@ class Controller
         $serverName = $_SERVER['SERVER_NAME'];
 
 
-
         if ($method == "POST" or $serverName === '127.0.0.1') {
             $inArray = "";
             $inWord = "";
@@ -108,8 +107,6 @@ class Controller
 
             $database = new FirebaseConnect();
             $database->getData("", $intents);
-
-
 
 
             //  $intents = json_decode(file_get_contents('hero.json'));
@@ -125,7 +122,6 @@ class Controller
             $queryUsers = explode(' ', $queryUser);
 
 
-
             foreach ($intents['hero'] as $intent => $texts) {
 
                 $pos = strpos(" " . $queryUser, $intent);
@@ -133,50 +129,55 @@ class Controller
 
                 //FIND MATCH IN STRING INTENT
                 if (in_array($intent, $queryUsers)) {
-                    $this->setResponse([
-                        "textToSpeech" => $texts[$key]["text"],
+                    $returnFromBot[] =
+                        [
+                            "textToSpeech" => $texts[$key]["text"],
+                        ];
 
-                    ]);
+
                     if ($texts[$key]['sound'] != null) {
-                        $this->setResponse([
-                            "ssml" => "cPasFaux.mp3",
-                            "text" => $texts[$key]["text"],
+                        $returnFromBot[] =
+                            [
+                                "ssml" => "cPasFaux.mp3",
+                                "text" => $texts[$key]["text"],
+                            ];
 
-                        ]);
                     }
                 } // FIND MATCH IN WORD INTENT
                 elseif ($pos != 0) {
-                    $this->setResponse([
-                        //"textToSpeech" => $texts[array_rand($texts)]["text"]
-                        "textToSpeech" => $texts[$key]["text"],
-                    ]);
+                    $returnFromBot[] =
+                        [
+                            "textToSpeech" => $texts[$key]["text"],
+                        ];
                     if ($texts[$key]['sound'] != null) {
-                        $this->setResponse([
-                            "ssml" => "cPasFaux.mp3",
-                            "text" => $texts[$key]["text"],
-
-                        ]);
+                        $returnFromBot[] =
+                            [
+                                "ssml" => "cPasFaux.mp3",
+                                "text" => $texts[$key]["text"],
+                            ];
                     }
                 }
 
-
-                if (empty($this->getResponse())) {
-                    $this->setResponse([
+            }
+            if (empty($returnFromBot)) {
+                $returnFromBot[] =
+                    [
                         "ssml" => "cPasFaux.mp3",
                         "text" => "C'est pas faux"
-                    ]);
-                }
-
-
+                    ];
             }
+
+            $this->setResponse($returnFromBot);
         } else {
             $this->setResponse("Vous n'etes pas en POST");
         }
+
         return $this;
     }
 
 
-    public function formatQuery($str, $charset = 'utf-8')
+    public
+    function formatQuery($str, $charset = 'utf-8')
     {
         $str = htmlentities($str, ENT_NOQUOTES, $charset);
 
@@ -187,24 +188,25 @@ class Controller
         return strtolower($str);
     }
 
-    public function makeResponse()
+    public
+    function makeResponse()
     {
 
         $response = new \stdClass();
         $controllerResponse = $this->getResponse();
 
-        $response->fulfillmentText = $controllerResponse["textToSpeech"];
+        $response->fulfillmentText = $controllerResponse[1]["textToSpeech"];
         $i = 0;
-        foreach ($controllerResponse as $method => $item) {
+        foreach ($controllerResponse[1] as $method => $item) {
             if ($method == "textToSpeech") {
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
                 $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $controllerResponse["textToSpeech"],
+                    $controllerResponse[1]["textToSpeech"],
                 ];
             }
             if ($method == "ssml") {
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse["ssml"] . '">' . $controllerResponse["text"] . ' </audio></speak>';
+                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse[0]["ssml"] . '">' . $controllerResponse[0]["text"] . ' </audio></speak>';
 
             }
             $i++;
