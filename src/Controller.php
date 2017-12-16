@@ -9,6 +9,7 @@
 namespace MasterHook;
 
 use DateTime;
+use function explode;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -138,8 +139,20 @@ class Controller
 
             $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
 
+
+            $userID = $json->originalDetectIntentRequest->payload->user->userId;
+            $key = $database->getKeyUser($userID);
+
+            $database->getData("user/$key", $user);
+            $actions = explode('-',$user["last_action"]) ;
+
             foreach ($this->getResponse() as $resPonseFromHook)
             {
+
+               if ($actions[0] == "hero" and $resPonseFromHook['action'] == "suivant") {
+                   $this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                }
+
                 if ($resPonseFromHook['action'] === "default") {
                     $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
                 }
