@@ -140,7 +140,7 @@ class Controller
 
             $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
             $test = $this->getResponse();
-            if ($test['action'] == "default") {
+            if ($test[0]['action'] == "default") {
                 $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
             }
 
