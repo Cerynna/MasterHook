@@ -174,15 +174,18 @@ class Controller
                 $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
 
 
-                if ($resPonseFromHook['action'] == "default") {
-                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
-                }
-
-                if ($resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero") {
+                if ($resPonseFromHooks[1] == "suivant") {
                     //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                     $this->setResponse($this->nextAction($actions));
                 }
+                if ($resPonseFromHooks[1] == "repeter") {
+                    //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                    $this->setResponse($this->repeatAction($actions));
+                }
 
+                if ($resPonseFromHook['action'] == "default") {
+                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+                }
 
             }
 
@@ -206,6 +209,17 @@ class Controller
         $str = preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
 
         return strtolower($str);
+    }
+    public function repeatAction($actions)
+    {
+        $this->database->getData($actions[0] . "/" . $actions[1]. "/" . $actions[2], $lists);
+
+        $returnFromBot[] =
+            [
+                "textToSpeech" => $lists["text"],
+                "action" => $actions[0] . "-" . $actions[1] . "-" . $actions[2],
+            ];
+        return $returnFromBot;
     }
 
     public function nextAction($actions)
