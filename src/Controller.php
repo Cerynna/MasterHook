@@ -8,7 +8,7 @@
 
 namespace MasterHook;
 
-use function in_array;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -26,6 +26,27 @@ class Controller
      * @var array
      */
     public $intent;
+
+    public $action;
+
+    /**
+     * @return mixed
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
+     * @param mixed $action
+     * @return Controller
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+        return $this;
+    }
+
 
     /**
      * @return array
@@ -117,7 +138,11 @@ class Controller
             $queryUser = $this->formatQuery($json->queryResult->queryText);
 
 
-            $this->setResponse($this->checkIntent($intents['hero'], $queryUser));
+            $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
+            $test = $this->getRequest();
+            if ($test['action'] == "default") {
+                $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+            }
 
         } else {
             $this->setResponse("Vous n'etes pas en POST");
@@ -138,11 +163,11 @@ class Controller
         return strtolower($str);
     }
 
-    public function checkIntent($intents, $queryUser)
+    public function checkIntent($intents, $type, $queryUser)
     {
         $j = 0;
         $queryUsers = explode(' ', $queryUser);
-        foreach ($intents as $intent => $texts) {
+        foreach ($intents[$type] as $intent => $texts) {
 
             $pos = strpos(" " . $queryUser, $intent);
             $key = array_rand($texts);
@@ -152,6 +177,7 @@ class Controller
                 $returnFromBot[$j] =
                     [
                         "textToSpeech" => $texts[$key]["text"],
+                        "action" => $type,
                     ];
 
 
@@ -160,6 +186,7 @@ class Controller
                         [
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
+                            "action" => $type,
                         ];
 
                 }
@@ -168,22 +195,25 @@ class Controller
                 $returnFromBot[$j] =
                     [
                         "textToSpeech" => $texts[$key]["text"],
+                        "action" => $type,
                     ];
                 if ($texts[$key]['sound'] != null) {
                     $returnFromBot[$j] =
                         [
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
+                            "action" => $type,
                         ];
                 }
             }
             $j++;
         }
         if (empty($returnFromBot)) {
-            $returnFromBot[] =
+            $returnFromBot[9999] =
                 [
                     "ssml" => "cPasFaux.mp3",
-                    "text" => "C'est pas faux"
+                    "text" => "C'est pas faux",
+                    "action" => "default",
                 ];
         }
         return $returnFromBot;
@@ -199,6 +229,20 @@ class Controller
         $userID = $json->originalDetectIntentRequest->payload->user->userId;
 
         $database = new FirebaseConnect();
+        $user = new User([
+            "id" => $userID
+        ]);
+
+        $key = $database->getKeyUser($userID);
+        if ($key == false) {
+            $database->addUser($user);
+            $key = $database->getKeyUser($userID);
+        }
+
+        $user->setLastAction($controllerResponse[0]['action']);
+        $user->setLastUse(new DateTime('now'));
+
+        $database->updateUserKey($key, $user);
 
 
         $i = 0;
@@ -208,7 +252,7 @@ class Controller
                 $response->fulfillmentText = $item["textToSpeech"];
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
                 $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $item["textToSpeech"] . $userID,
+                    $item["textToSpeech"],
                 ];
             }
             if (in_array('ssml', array_keys($item))) {

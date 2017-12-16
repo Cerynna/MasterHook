@@ -86,7 +86,7 @@ class FirebaseConnect
     {
         return $this->database->getReference("user/$key")
             ->set(
-                $array
+                get_object_vars($array)
             )
             ->getValue();
     }
@@ -96,7 +96,7 @@ class FirebaseConnect
         $newPost = $this->database
             ->getReference("user")
             ->push(
-                $user
+                get_object_vars($user)
             );
         $newPost->getValue();
 

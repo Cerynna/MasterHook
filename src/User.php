@@ -18,11 +18,9 @@ class User
 
     public $last_action;
 
-    public $commands;
 
     public $geoloc;
 
-    public $game;
 
     /**
      * @return mixed
@@ -78,23 +76,6 @@ class User
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCommands()
-    {
-        return $this->commands;
-    }
-
-    /**
-     * @param mixed $commands
-     * @return User
-     */
-    public function setCommands($commands)
-    {
-        $this->commands = $commands;
-        return $this;
-    }
 
     /**
      * @return mixed
@@ -114,23 +95,7 @@ class User
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getGame()
-    {
-        return $this->game;
-    }
 
-    /**
-     * @param mixed $game
-     * @return User
-     */
-    public function setGame($game)
-    {
-        $this->game = $game;
-        return $this;
-    }
 
     public function getUser()
     {
@@ -148,14 +113,8 @@ class User
         if (!empty($user['last_action'])){
             $this->setLastAction($user['last_action']);
         }
-        if (!empty($user['commands'])){
-            $this->setCommands($user['commands']);
-        }
         if (!empty($user['geoloc'])){
             $this->setGeoloc($user['geoloc']);
-        }
-        if (!empty($user['game'])){
-            $this->setGame($user['game']);
         }
         return $this;
 

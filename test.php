@@ -11,6 +11,6 @@ $intents = $controller->getIntent();
 echo "<pre>";
 
 
-print_r($controller->checkIntent($intents['action'], "suivant")) ;
+print_r($controller->checkIntent($intents,'hero', "arthur")) ;
 
 echo "<pre>";
