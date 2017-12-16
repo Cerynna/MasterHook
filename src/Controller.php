@@ -388,6 +388,7 @@ class Controller
     {
         $this->database->getData("user/$this->keyUser", $user);
 
+        $actions = explode('-', $user["action"]);
 
 
         $this->setResponse($this->checkIntent($this->intent, 'action', $queryUser));
