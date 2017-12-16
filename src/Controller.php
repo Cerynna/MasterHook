@@ -195,7 +195,9 @@ class Controller
         $response = new \stdClass();
         $controllerResponse = $this->getResponse();
 
-        $userID = $this->getRequest();
+        $json = $this->getRequest();
+        $userID = $json->originalDetectIntentRequest->payload->user->userId;
+
         $database = new FirebaseConnect();
 
 
@@ -206,7 +208,7 @@ class Controller
                 $response->fulfillmentText = $item["textToSpeech"];
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
                 $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $item["textToSpeech"],
+                    $item["textToSpeech"] . $userID,
                 ];
             }
             if (in_array('ssml', array_keys($item))) {
