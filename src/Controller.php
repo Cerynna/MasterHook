@@ -197,20 +197,25 @@ class Controller
 
         $response->fulfillmentText = $controllerResponse[1]["textToSpeech"];
         $i = 0;
-        foreach ($controllerResponse[1] as $method => $item) {
-            if ($method == "textToSpeech") {
-                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $controllerResponse[1]["textToSpeech"],
-                ];
-            }
-            if ($method == "ssml") {
-                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse[0]["ssml"] . '">' . $controllerResponse[0]["text"] . ' </audio></speak>';
+        foreach ($controllerResponse as $key) {
 
+
+            foreach ($controllerResponse[$key] as $method => $item) {
+                if ($method == "textToSpeech") {
+                    $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
+                        $controllerResponse[$key]["textToSpeech"],
+                    ];
+                }
+                if ($method == "ssml") {
+                    $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse[$key]["ssml"] . '">' . $controllerResponse[$key]["text"] . ' </audio></speak>';
+
+                }
+                $i++;
             }
-            $i++;
         }
+
 
         $response->source = "webhook";
 
