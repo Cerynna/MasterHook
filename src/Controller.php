@@ -11,7 +11,7 @@ namespace MasterHook;
 use DateTime;
 use function implode;
 use Symfony\Component\HttpFoundation\Request;
-use function var_dump;
+
 
 class Controller
 {
@@ -223,7 +223,7 @@ class Controller
             $this->database->getData("user/$this->keyUser", $user);
             $actions = explode('-', $user["last_action"]);
 
-            var_dump($this->getResponse());
+
 
             foreach ($this->getResponse() as $resPonseFromHook) {
                 $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
@@ -365,6 +365,7 @@ class Controller
 
 
         $this->user->setLastAction($controllerResponse['action']);
+        $this->user->setPrevAction($controllerResponse['prevAction']);
         $this->user->setLastUse(new DateTime('now'));
 
 

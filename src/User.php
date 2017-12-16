@@ -18,8 +18,28 @@ class User
 
     public $last_action;
 
+    public $prev_action;
 
     public $geoloc;
+
+    /**
+     * @return mixed
+     */
+    public function getPrevAction()
+    {
+        return $this->prev_action;
+    }
+
+    /**
+     * @param mixed $prev_action
+     * @return User
+     */
+    public function setPrevAction($prev_action)
+    {
+        $this->prev_action = $prev_action;
+        return $this;
+    }
+
 
 
     /**
