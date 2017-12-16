@@ -388,7 +388,11 @@ class Controller
     {
         $this->database->getData("user/$this->keyUser", $user);
 
-        $actions = explode('-', $user["prev_action"]);
+        $actions = explode('-', $user["action"]);
+        if ($actions[0] == "default")
+        {
+            $actions = explode('-', $user["prev_action"]);
+        }
 
 
         $this->setResponse($this->checkIntent($this->intent, 'action', $queryUser));
