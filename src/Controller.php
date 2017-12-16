@@ -211,8 +211,7 @@ class Controller
 
         $returnFromBot[] =
             [
-                "ssml" => "cPasFaux.mp3",
-                "text" => $lists[$key]["text"],
+                "textToSpeech" => $lists[$key]["text"],
                 "action" => $actions[0] . "-" . $actions[1] . "-" . $key,
             ];
         return $returnFromBot;
