@@ -149,7 +149,7 @@ class Controller
             foreach ($this->getResponse() as $resPonseFromHook)
             {
 
-               if ($actions[0] == "hero" and $resPonseFromHook['action'] == "suivant") {
+               if ($resPonseFromHook['action'] === "suivant" AND $actions[0] === "hero" ) {
                    $this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                 }
 
