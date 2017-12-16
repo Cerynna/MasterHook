@@ -222,6 +222,7 @@ class Controller
             $this->database->getData("user/$this->keyUser", $user);
             $actions = explode('-', $user["last_action"]);
 
+            var_dump($this->getResponse());
 
             foreach ($this->getResponse() as $resPonseFromHook) {
                 $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
@@ -236,7 +237,7 @@ class Controller
                     $this->setResponse($this->repeatAction($actions));
                 }
 
-                if ($resPonseFromHook['action'] == "default") {
+                if ($resPonseFromHook[0] == "default") {
                     $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
                 }
 
@@ -341,7 +342,8 @@ class Controller
                 [
                     "ssml" => "cPasFaux.mp3",
                     "text" => "C'est pas faux",
-                    "action" => $lists['last_action'],
+                    "action" => "default",
+                    "prevAction" => $lists['action'],
                 ];
         }
         return $returnFromBot;
