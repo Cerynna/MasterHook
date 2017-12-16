@@ -8,6 +8,7 @@
 
 namespace MasterHook;
 
+use function in_array;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -121,7 +122,7 @@ class Controller
             $queryUser = $this->formatQuery($json->queryResult->queryText);
             $queryUsers = explode(' ', $queryUser);
 
-
+$j=0;
             foreach ($intents['hero'] as $intent => $texts) {
 
                 $pos = strpos(" " . $queryUser, $intent);
@@ -129,14 +130,14 @@ class Controller
 
                 //FIND MATCH IN STRING INTENT
                 if (in_array($intent, $queryUsers)) {
-                    $returnFromBot[] =
+                    $returnFromBot[$j] =
                         [
                             "textToSpeech" => $texts[$key]["text"],
                         ];
 
 
                     if ($texts[$key]['sound'] != null) {
-                        $returnFromBot[] =
+                        $returnFromBot[$j] =
                             [
                                 "ssml" => "cPasFaux.mp3",
                                 "text" => $texts[$key]["text"],
@@ -145,19 +146,19 @@ class Controller
                     }
                 } // FIND MATCH IN WORD INTENT
                 elseif ($pos != 0) {
-                    $returnFromBot[] =
+                    $returnFromBot[$j] =
                         [
                             "textToSpeech" => $texts[$key]["text"],
                         ];
                     if ($texts[$key]['sound'] != null) {
-                        $returnFromBot[] =
+                        $returnFromBot[$j] =
                             [
                                 "ssml" => "cPasFaux.mp3",
                                 "text" => $texts[$key]["text"],
                             ];
                     }
                 }
-
+$j++;
             }
             if (empty($returnFromBot)) {
                 $returnFromBot[] =
@@ -195,26 +196,28 @@ class Controller
         $response = new \stdClass();
         $controllerResponse = $this->getResponse();
 
-        $response->fulfillmentText = $controllerResponse[1]["textToSpeech"];
+
         $i = 0;
-        foreach ($controllerResponse as $key) {
 
+$key = 1;
 
-            foreach ($controllerResponse[$key] as $method => $item) {
-                if ($method == "textToSpeech") {
+            foreach ($controllerResponse as $key => $item) {
+                if (in_array('textToSpeech', array_keys($item))) {
+                    $response->fulfillmentText = $item["textToSpeech"];
                     $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
                     $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                        $controllerResponse[$key]["textToSpeech"],
+                        $item["textToSpeech"],
                     ];
                 }
-                if ($method == "ssml") {
+                if (in_array('ssml', array_keys($item))) {
+                    $response->fulfillmentText = $item["text"];
                     $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse[$key]["ssml"] . '">' . $controllerResponse[$key]["text"] . ' </audio></speak>';
+                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $item["ssml"] . '">' . $item["text"] . ' </audio></speak>';
 
                 }
                 $i++;
             }
-        }
+
 
 
         $response->source = "webhook";
