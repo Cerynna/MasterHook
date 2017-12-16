@@ -104,71 +104,21 @@ class Controller
             $json = json_decode(file_get_contents('php://input'));
             if ($serverName == '127.0.0.1') {
                 $json = json_decode(file_get_contents('requestFromBot.json'));
-            }
 
+            }
+            file_put_contents('requestFromBot.json', json_encode($json));
             $database = new FirebaseConnect();
             $database->getData("", $intents);
-
-
-            //  $intents = json_decode(file_get_contents('hero.json'));
 
             $this->setRequest($json);
             $this->setIntent($intents);
 
-            // DEV MOD
-            file_put_contents('requestFromBot.json', json_encode($json));
-
 
             $queryUser = $this->formatQuery($json->queryResult->queryText);
-            $queryUsers = explode(' ', $queryUser);
-
-$j=0;
-            foreach ($intents['hero'] as $intent => $texts) {
-
-                $pos = strpos(" " . $queryUser, $intent);
-                $key = array_rand($texts);
-
-                //FIND MATCH IN STRING INTENT
-                if (in_array($intent, $queryUsers)) {
-                    $returnFromBot[$j] =
-                        [
-                            "textToSpeech" => $texts[$key]["text"],
-                        ];
 
 
-                    if ($texts[$key]['sound'] != null) {
-                        $returnFromBot[$j] =
-                            [
-                                "ssml" => "cPasFaux.mp3",
-                                "text" => $texts[$key]["text"],
-                            ];
+            $this->setResponse($this->checkIntent($intents['hero'], $queryUser));
 
-                    }
-                } // FIND MATCH IN WORD INTENT
-                elseif ($pos != 0) {
-                    $returnFromBot[$j] =
-                        [
-                            "textToSpeech" => $texts[$key]["text"],
-                        ];
-                    if ($texts[$key]['sound'] != null) {
-                        $returnFromBot[$j] =
-                            [
-                                "ssml" => "cPasFaux.mp3",
-                                "text" => $texts[$key]["text"],
-                            ];
-                    }
-                }
-$j++;
-            }
-            if (empty($returnFromBot)) {
-                $returnFromBot[] =
-                    [
-                        "ssml" => "cPasFaux.mp3",
-                        "text" => "C'est pas faux"
-                    ];
-            }
-
-            $this->setResponse($returnFromBot);
         } else {
             $this->setResponse("Vous n'etes pas en POST");
         }
@@ -177,8 +127,7 @@ $j++;
     }
 
 
-    public
-    function formatQuery($str, $charset = 'utf-8')
+    public function formatQuery($str, $charset = 'utf-8')
     {
         $str = htmlentities($str, ENT_NOQUOTES, $charset);
 
@@ -189,35 +138,85 @@ $j++;
         return strtolower($str);
     }
 
-    public
-    function makeResponse()
+    public function checkIntent($intents, $queryUser)
+    {
+        $j = 0;
+        $queryUsers = explode(' ', $queryUser);
+        foreach ($intents as $intent => $texts) {
+
+            $pos = strpos(" " . $queryUser, $intent);
+            $key = array_rand($texts);
+
+            //FIND MATCH IN STRING INTENT
+            if (in_array($intent, $queryUsers)) {
+                $returnFromBot[$j] =
+                    [
+                        "textToSpeech" => $texts[$key]["text"],
+                    ];
+
+
+                if ($texts[$key]['sound'] != null) {
+                    $returnFromBot[$j] =
+                        [
+                            "ssml" => "cPasFaux.mp3",
+                            "text" => $texts[$key]["text"],
+                        ];
+
+                }
+            } // FIND MATCH IN WORD INTENT
+            elseif ($pos != 0) {
+                $returnFromBot[$j] =
+                    [
+                        "textToSpeech" => $texts[$key]["text"],
+                    ];
+                if ($texts[$key]['sound'] != null) {
+                    $returnFromBot[$j] =
+                        [
+                            "ssml" => "cPasFaux.mp3",
+                            "text" => $texts[$key]["text"],
+                        ];
+                }
+            }
+            $j++;
+        }
+        if (empty($returnFromBot)) {
+            $returnFromBot[] =
+                [
+                    "ssml" => "cPasFaux.mp3",
+                    "text" => "C'est pas faux"
+                ];
+        }
+        return $returnFromBot;
+    }
+
+    public function makeResponse()
     {
 
         $response = new \stdClass();
         $controllerResponse = $this->getResponse();
 
+        $userID = $this->getRequest();
+        $database = new FirebaseConnect();
+        var_dump($userID);
 
         $i = 0;
 
-$key = 1;
-
-            foreach ($controllerResponse as $key => $item) {
-                if (in_array('textToSpeech', array_keys($item))) {
-                    $response->fulfillmentText = $item["textToSpeech"];
-                    $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                        $item["textToSpeech"],
-                    ];
-                }
-                if (in_array('ssml', array_keys($item))) {
-                    $response->fulfillmentText = $item["text"];
-                    $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                    $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $item["ssml"] . '">' . $item["text"] . ' </audio></speak>';
-
-                }
-                $i++;
+        foreach ($controllerResponse as $key => $item) {
+            if (in_array('textToSpeech', array_keys($item))) {
+                $response->fulfillmentText = $item["textToSpeech"];
+                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
+                    $item["textToSpeech"],
+                ];
             }
+            if (in_array('ssml', array_keys($item))) {
+                $response->fulfillmentText = $item["text"];
+                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $item["ssml"] . '">' . $item["text"] . ' </audio></speak>';
 
+            }
+            $i++;
+        }
 
 
         $response->source = "webhook";

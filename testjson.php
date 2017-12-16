@@ -6,7 +6,7 @@
  * Time: 22:21
  */
 
-$json = json_decode(file_get_contents('hero.json')) ;
+$json = json_decode(file_get_contents('intents.json')) ;
 
 
 print_r( json_encode($json) );

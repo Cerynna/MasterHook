@@ -4,8 +4,13 @@ require __DIR__ . '/vendor/autoload.php';
 
 $controller = new MasterHook\Controller();
 
+$intents = $controller->getIntent();
+
+
+
 echo "<pre>";
-print_r($controller->getResponse());
-print_r($controller->getRequest());
+
+
+print_r($controller->checkIntent($intents['action'], "suivant")) ;
 
 echo "<pre>";

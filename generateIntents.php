@@ -1,5 +1,29 @@
 <?php
-$hero = [
+$intents = [
+    "action" => [
+        "suivant" => [
+            [
+                "text" => "suivant"
+            ]
+        ],
+        "repeter" => [
+            [
+                "text" => "repeter"
+            ]
+        ],
+        "precedent" => [
+            [
+                "text" => "precedent"
+            ]
+        ],
+        "quit" => [
+            [
+                "text" => "quit"
+            ]
+        ],
+
+    ],
+
     "hero" => [
         "arthur" => [
             [
@@ -33,5 +57,5 @@ $hero = [
         ],
     ]
 ];
-file_put_contents('hero.json', json_encode($hero));
+file_put_contents('intents.json', json_encode($intents));
 
