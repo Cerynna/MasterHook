@@ -8,9 +8,7 @@
 
 namespace MasterHook;
 
-use function array_rand;
 use DateTime;
-use function explode;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -32,6 +30,51 @@ class Controller
     public $action;
 
     public $database;
+
+    public $keyUser;
+
+    public $user;
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     * @return Controller
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+
+
+
+    /**
+     * @return mixed
+     */
+    public function getKeyUser()
+    {
+        return $this->keyUser;
+    }
+
+    /**
+     * @param mixed $keyUser
+     * @return Controller
+     */
+    public function setKeyUser($keyUser)
+    {
+        $this->keyUser = $keyUser;
+        return $this;
+    }
+
+
 
     /**
      * @return mixed
@@ -144,6 +187,7 @@ class Controller
 
             $this->setDatabase(new FirebaseConnect());
 
+
             $json = json_decode(file_get_contents('php://input'));
             if ($serverName == '127.0.0.1') {
                 $json = json_decode(file_get_contents('requestFromBot.json'));
@@ -164,9 +208,18 @@ class Controller
 
 
             $userID = $json->originalDetectIntentRequest->payload->user->userId;
-            $key = $this->database->getKeyUser($userID);
+            $this->setKeyUser($this->database->getKeyUser($userID));
 
-            $this->database->getData("user/$key", $user);
+            $this->setUser(new User([
+                "id" => $userID
+            ]));
+
+            if ($this->keyUser == false) {
+                $this->database->addUser($this->user);
+                $this->setKeyUser($this->database->getKeyUser($userID));
+            }
+
+            $this->database->getData("user/$this->keyUser", $user);
             $actions = explode('-', $user["last_action"]);
 
 
@@ -282,11 +335,13 @@ class Controller
             $j++;
         }
         if (empty($returnFromBot)) {
+            $this->database->getData("user/$this->keyUser",$lists);
+
             $returnFromBot[9999] =
                 [
                     "ssml" => "cPasFaux.mp3",
                     "text" => "C'est pas faux",
-                    "action" => "default",
+                    "action" => $lists['last_action'],
                 ];
         }
         return $returnFromBot;
@@ -298,24 +353,12 @@ class Controller
         $response = new \stdClass();
         $controllerResponse = array_shift($this->getResponse());
 
-        $json = $this->getRequest();
-        $userID = $json->originalDetectIntentRequest->payload->user->userId;
+
+        $this->user->setLastAction($controllerResponse['action']);
+        $this->user->setLastUse(new DateTime('now'));
 
 
-        $user = new User([
-            "id" => $userID
-        ]);
-
-        $key = $this->database->getKeyUser($userID);
-        if ($key == false) {
-            $this->database->addUser($user);
-            $key = $this->database->getKeyUser($userID);
-        }
-
-        $user->setLastAction($controllerResponse['action']);
-        $user->setLastUse(new DateTime('now'));
-
-        $this->database->updateUserKey($key, $user);
+        $this->database->updateUserKey($this->keyUser, $this->user);
 
 
         $i = 0;
