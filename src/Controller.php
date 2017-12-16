@@ -137,7 +137,7 @@ class Controller
                         "textToSpeech" => $texts[$key]["text"],
 
                     ]);
-                    if ($texts[$key]->sound != null) {
+                    if ($texts[$key]['sound'] != null) {
                         $this->setResponse([
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
@@ -150,7 +150,7 @@ class Controller
                         //"textToSpeech" => $texts[array_rand($texts)]["text"]
                         "textToSpeech" => $texts[$key]["text"],
                     ]);
-                    if ($texts[$key]->sound != null) {
+                    if ($texts[$key]['sound'] != null) {
                         $this->setResponse([
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
