@@ -11,6 +11,7 @@ namespace MasterHook;
 use DateTime;
 use function implode;
 use Symfony\Component\HttpFoundation\Request;
+use function var_dump;
 
 
 class Controller
@@ -407,6 +408,7 @@ class Controller
         $this->setResponse($this->checkIntent($this->intent, 'action', $queryUser));
 
 
+
         foreach ($this->getResponse() as $resPonseFromHook) {
             $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
 
@@ -420,8 +422,10 @@ class Controller
                 $this->setResponse($this->repeatAction($actions));
             }
             if ($resPonseFromHooks[1] == "quiz") {
+
                 //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
-                $this->setResponse($this>$this->quizAction($actions));
+                $this->setResponse($this->quizAction($actions));
+
             }
             if ($resPonseFromHooks[0] == "default") {
                 $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
