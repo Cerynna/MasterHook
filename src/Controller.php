@@ -9,6 +9,7 @@
 namespace MasterHook;
 
 use DateTime;
+use function implode;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -272,6 +273,7 @@ class Controller
             [
                 "textToSpeech" => $lists["text"],
                 "action" => $actions[0] . "-" . $actions[1] . "-" . $actions[2],
+                "prevAction" => implode('-',$actions),
             ];
         return $returnFromBot;
     }
@@ -286,12 +288,14 @@ class Controller
             [
                 "textToSpeech" => $lists[$key]["text"],
                 "action" => $actions[0] . "-" . $actions[1] . "-" . $key,
+                "prevAction" => implode('-',$actions),
             ];
         return $returnFromBot;
     }
 
     public function checkIntent($intents, $type, $queryUser)
     {
+        $this->database->getData("user/$this->keyUser",$user);
         $j = 0;
         $queryUsers = explode(' ', $queryUser);
         foreach ($intents[$type] as $intent => $texts) {
@@ -305,6 +309,7 @@ class Controller
                     [
                         "textToSpeech" => $texts[$key]["text"],
                         "action" => $type . "-" . $intent . "-" . $key,
+                        "prevAction" => $user['last_action'],
                     ];
 
 
@@ -314,6 +319,7 @@ class Controller
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
                             "action" => $type . "-" . $intent . "-" . $key,
+                            "prevAction" => $user['last_action'],
                         ];
 
                 }
@@ -323,6 +329,7 @@ class Controller
                     [
                         "textToSpeech" => $texts[$key]["text"],
                         "action" => $type . "-" . $intent . "-" . $key,
+                        "prevAction" => $user['last_action'],
                     ];
                 if ($texts[$key]['sound'] != null) {
                     $returnFromBot[$j] =
@@ -330,20 +337,21 @@ class Controller
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
                             "action" => $type . "-" . $intent . "-" . $key,
+                            "prevAction" => $user['last_action'],
                         ];
                 }
             }
             $j++;
         }
         if (empty($returnFromBot)) {
-            $this->database->getData("user/$this->keyUser",$lists);
+
 
             $returnFromBot[9999] =
                 [
                     "ssml" => "cPasFaux.mp3",
                     "text" => "C'est pas faux",
                     "action" => "default",
-                    "prevAction" => $lists['action'],
+                    "prevAction" => $user['last_action'],
                 ];
         }
         return $returnFromBot;
