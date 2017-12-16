@@ -267,7 +267,15 @@ class Controller
             ];
         return $returnFromBot;
     }
-
+    public function quizAction($actions){
+        $returnFromBot[] =
+            [
+                "textToSpeech" => "Bienvenue sur le Quiz",
+                "action" => "quiz-arthur-1",
+                "prevAction" => implode('-', $actions),
+            ];
+        return $returnFromBot;
+    }
     public function checkIntent($intents, $type, $queryUser)
     {
         $this->database->getData("user/$this->keyUser", $user);
@@ -384,6 +392,7 @@ class Controller
 
     }
 
+
     public function rooting($queryUser)
     {
         $this->database->getData("user/$this->keyUser", $user);
@@ -412,11 +421,7 @@ class Controller
             }
             if ($resPonseFromHooks[1] == "quiz") {
                 //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
-                $this->setResponse([
-                    "textToSpeech" => "Bienvenue sur le quizz",
-                    "action" => "quiz-arthur-1",
-                    "prevAction" => $user['last_action'],
-                ]);
+                $this->setResponse($this>$this->quizAction($actions));
             }
             if ($resPonseFromHooks[0] == "default") {
                 $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
