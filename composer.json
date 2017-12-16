@@ -1,0 +1,18 @@
+{
+  "name": "cerynna/Master_Hook",
+  "authors": [
+    {
+      "name": "Jeremy MARTIN",
+      "email": "cerynna@gmail.com"
+    }
+  ],
+  "require": {
+    "symfony/http-foundation": "^3.4",
+    "kreait/firebase-php": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MasterHook\\": "src/"
+    }
+  }
+}

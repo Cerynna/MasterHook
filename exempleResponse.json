@@ -1,0 +1,38 @@
+{
+  "responseId": "9f0fe23b-2282-4281-89f5-fb91af25d126",
+  "queryResult": {
+    "queryText": "Salut",
+    "action": "input.welcome",
+    "parameters": {},
+    "allRequiredParamsPresent": true,
+    "fulfillmentMessages": [
+      {
+        "platform": "ACTIONS_ON_GOOGLE",
+        "simpleResponses": {
+          "simpleResponses": [
+            {
+              "ssml": "<speak>\n  <audio src=\"https://obscure-cove-59185.herokuapp.com/web/sound/intro.mp3\"> Bienvenue </audio>\n</speak>"
+            }
+          ]
+        }
+      },
+      {
+        "platform": "ACTIONS_ON_GOOGLE",
+        "simpleResponses": {
+          "simpleResponses": [
+            {
+              "textToSpeech": "Bienvenue Fan de Kaamelott A qui veux tu parler ?"
+            }
+          ]
+        }
+      }
+    ],
+    "intent": {
+      "name": "projects/master-hook/agent/intents/1b1c95e4-5576-4ddd-8259-cb67a3b7d315",
+      "displayName": "Default Welcome Intent"
+    },
+    "intentDetectionConfidence": 1,
+    "diagnosticInfo": {},
+    "languageCode": "fr"
+  }
+}
