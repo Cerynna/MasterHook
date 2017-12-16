@@ -55,8 +55,6 @@ class Controller
     }
 
 
-
-
     /**
      * @return mixed
      */
@@ -74,7 +72,6 @@ class Controller
         $this->keyUser = $keyUser;
         return $this;
     }
-
 
 
     /**
@@ -202,12 +199,10 @@ class Controller
             $this->setIntent($intents);
 
 
-            $queryUser = $this->formatQuery($json->queryResult->queryText);
+            $queryUser = $this->formatQuery($this->request->queryResult->queryText);
 
+            $userID = $this->request->originalDetectIntentRequest->payload->user->userId;
 
-
-
-            $userID = $json->originalDetectIntentRequest->payload->user->userId;
             $this->setKeyUser($this->database->getKeyUser($userID));
 
             $this->setUser(new User([
@@ -219,32 +214,10 @@ class Controller
                 $this->setKeyUser($this->database->getKeyUser($userID));
             }
 
-            $this->database->getData("user/$this->keyUser", $user);
 
-            $actions = explode('-', $user["last_action"]);
-
-
-            $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
+            $this->rooting($queryUser);
 
 
-            foreach ($this->getResponse() as $resPonseFromHook) {
-                $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
-
-
-                if ($resPonseFromHooks[1] == "suivant") {
-                    //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
-                    $this->setResponse($this->nextAction($actions));
-                }
-                if ($resPonseFromHooks[1] == "repeter") {
-                    //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
-                    $this->setResponse($this->repeatAction($actions));
-                }
-
-                if ($resPonseFromHooks[0] == "default") {
-                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
-                }
-
-            }
 
         } else {
             $this->setResponse([
@@ -267,15 +240,16 @@ class Controller
 
         return strtolower($str);
     }
+
     public function repeatAction($actions)
     {
-        $this->database->getData($actions[0] . "/" . $actions[1]. "/" . $actions[2], $lists);
+        $this->database->getData($actions[0] . "/" . $actions[1] . "/" . $actions[2], $lists);
 
         $returnFromBot[] =
             [
                 "textToSpeech" => $lists["text"],
                 "action" => $actions[0] . "-" . $actions[1] . "-" . $actions[2],
-                "prevAction" => implode('-',$actions),
+                "prevAction" => implode('-', $actions),
             ];
         return $returnFromBot;
     }
@@ -290,14 +264,14 @@ class Controller
             [
                 "textToSpeech" => $lists[$key]["text"],
                 "action" => $actions[0] . "-" . $actions[1] . "-" . $key,
-                "prevAction" => implode('-',$actions),
+                "prevAction" => implode('-', $actions),
             ];
         return $returnFromBot;
     }
 
     public function checkIntent($intents, $type, $queryUser)
     {
-        $this->database->getData("user/$this->keyUser",$user);
+        $this->database->getData("user/$this->keyUser", $user);
         $j = 0;
         $queryUsers = explode(' ', $queryUser);
         foreach ($intents[$type] as $intent => $texts) {
@@ -377,21 +351,20 @@ class Controller
         $i = 0;
 
 
-            if (in_array('textToSpeech', array_keys($controllerResponse))) {
-                $response->fulfillmentText = $controllerResponse["textToSpeech"];
-                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $controllerResponse["textToSpeech"],
-                ];
-            }
-            if (in_array('ssml', array_keys($controllerResponse))) {
-                $response->fulfillmentText = $controllerResponse["text"];
-                $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse["ssml"] . '">' . $controllerResponse["text"] . ' </audio></speak>';
+        if (in_array('textToSpeech', array_keys($controllerResponse))) {
+            $response->fulfillmentText = $controllerResponse["textToSpeech"];
+            $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+            $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
+                $controllerResponse["textToSpeech"],
+            ];
+        }
+        if (in_array('ssml', array_keys($controllerResponse))) {
+            $response->fulfillmentText = $controllerResponse["text"];
+            $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
+            $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse["ssml"] . '">' . $controllerResponse["text"] . ' </audio></speak>';
 
-            }
-            $i++;
-
+        }
+        $i++;
 
 
         $response->source = "webhook";
@@ -409,4 +382,33 @@ class Controller
 
     }
 
+    public function rooting($queryUser)
+    {
+        $this->database->getData("user/$this->keyUser", $user);
+
+        $actions = explode('-', $user["last_action"]);
+
+
+        $this->setResponse($this->checkIntent($this->intent, 'action', $queryUser));
+
+
+        foreach ($this->getResponse() as $resPonseFromHook) {
+            $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
+
+
+            if ($resPonseFromHooks[1] == "suivant") {
+                //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                $this->setResponse($this->nextAction($actions));
+            }
+            if ($resPonseFromHooks[1] == "repeter") {
+                //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                $this->setResponse($this->repeatAction($actions));
+            }
+
+            if ($resPonseFromHooks[0] == "default") {
+                $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
+            }
+
+        }
+    }
 }
