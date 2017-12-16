@@ -146,14 +146,17 @@ class Controller
             $database->getData("user/$key", $user);
             $actions = explode('-',$user["last_action"]) ;
 
+
             foreach ($this->getResponse() as $resPonseFromHook)
             {
+                $resPonseFromHooks = explode('-',$resPonseFromHook['action']) ;
 
-               if ($resPonseFromHook['action'] === "suivant" AND $actions[0] === "hero" ) {
+               if ($resPonseFromHooks[0] == "action" AND $resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero" ) {
                    $this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+
                 }
 
-                if ($resPonseFromHook['action'] === "default") {
+                if ($resPonseFromHook['action'] == "default") {
                     $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
                 }
             }
