@@ -218,7 +218,6 @@ class Controller
             $this->rooting($queryUser);
 
 
-
         } else {
             $this->setResponse([
                 "textToSpeech" => "BUG",
@@ -339,6 +338,9 @@ class Controller
         $response = new \stdClass();
         $controllerResponse = array_shift($this->getResponse());
 
+        if (empty ($controllerResponse['prevAction'])) {
+            $controllerResponse['prevAction'] = $controllerResponse['action'];
+        }
 
         $this->user->setLastAction($controllerResponse['action']);
         $this->user->setPrevAction($controllerResponse['prevAction']);
