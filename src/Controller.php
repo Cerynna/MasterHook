@@ -119,8 +119,6 @@ class Controller
 
 
         if ($method == "POST" or $serverName === '127.0.0.1') {
-            $inArray = "";
-            $inWord = "";
 
             $json = json_decode(file_get_contents('php://input'));
             if ($serverName == '127.0.0.1') {
@@ -180,7 +178,7 @@ class Controller
                 $returnFromBot[$j] =
                     [
                         "textToSpeech" => $texts[$key]["text"],
-                        "action" => $type,
+                        "action" => $type . "-" . $intent . "-" . $key,
                     ];
 
 
@@ -189,7 +187,7 @@ class Controller
                         [
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
-                            "action" => $type,
+                            "action" => $type . "-" . $intent . "-" . $key,
                         ];
 
                 }
@@ -198,14 +196,14 @@ class Controller
                 $returnFromBot[$j] =
                     [
                         "textToSpeech" => $texts[$key]["text"],
-                        "action" => $type,
+                        "action" => $type . "-" . $intent . "-" . $key,
                     ];
                 if ($texts[$key]['sound'] != null) {
                     $returnFromBot[$j] =
                         [
                             "ssml" => "cPasFaux.mp3",
                             "text" => $texts[$key]["text"],
-                            "action" => $type,
+                            "action" => $type . "-" . $intent . "-" . $key,
                         ];
                 }
             }
