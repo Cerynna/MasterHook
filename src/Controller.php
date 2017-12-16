@@ -206,7 +206,7 @@ class Controller
 
 
             $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
-
+            $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
 
             $userID = $json->originalDetectIntentRequest->payload->user->userId;
             $this->setKeyUser($this->database->getKeyUser($userID));
@@ -239,7 +239,7 @@ class Controller
                 }
 
                 if ($resPonseFromHook[0] == "default") {
-                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+
                 }
 
             }
