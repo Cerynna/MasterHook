@@ -205,8 +205,7 @@ class Controller
             $queryUser = $this->formatQuery($json->queryResult->queryText);
 
 
-            $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
-            $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+
 
             $userID = $json->originalDetectIntentRequest->payload->user->userId;
             $this->setKeyUser($this->database->getKeyUser($userID));
@@ -221,8 +220,11 @@ class Controller
             }
 
             $this->database->getData("user/$this->keyUser", $user);
+
             $actions = explode('-', $user["last_action"]);
 
+
+            $this->setResponse($this->checkIntent($intents, 'action', $queryUser));
 
 
             foreach ($this->getResponse() as $resPonseFromHook) {
@@ -238,8 +240,8 @@ class Controller
                     $this->setResponse($this->repeatAction($actions));
                 }
 
-                if ($resPonseFromHook[0] == "default") {
-
+                if ($resPonseFromHooks[0] == "default") {
+                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
                 }
 
             }
