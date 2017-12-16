@@ -197,7 +197,7 @@ class Controller
 
         $userID = $this->getRequest();
         $database = new FirebaseConnect();
-        var_dump($userID);
+
 
         $i = 0;
 
