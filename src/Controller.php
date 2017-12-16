@@ -410,7 +410,14 @@ class Controller
                 //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                 $this->setResponse($this->repeatAction($actions));
             }
-
+            if ($resPonseFromHooks[1] == "quiz") {
+                //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
+                $this->setResponse([
+                    "textToSpeech" => "Bienvenue sur le quizz",
+                    "action" => "quiz-arthur-1",
+                    "prevAction" => $user['last_action'],
+                ]);
+            }
             if ($resPonseFromHooks[0] == "default") {
                 $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
             }
