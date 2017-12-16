@@ -174,18 +174,23 @@ class Controller
                 $resPonseFromHooks = explode('-', $resPonseFromHook['action']);
 
 
+                if ($resPonseFromHook['action'] == "default") {
+                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
+                }
+
                 if ($resPonseFromHooks[1] == "suivant" AND $actions[0] === "hero") {
                     //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                     $this->setResponse($this->nextAction($actions));
                 }
 
-                if ($resPonseFromHook['action'] == "default") {
-                    $this->setResponse($this->checkIntent($intents, 'hero', $queryUser));
-                }
+
             }
 
         } else {
-            $this->setResponse("Vous n'etes pas en POST");
+            $this->setResponse([
+                "textToSpeech" => "BUG",
+                "action" => "bug",
+            ]);
         }
 
         return $this;
@@ -293,7 +298,6 @@ class Controller
             $key = $this->database->getKeyUser($userID);
         }
 
-
         $user->setLastAction($controllerResponse['action']);
         $user->setLastUse(new DateTime('now'));
 
@@ -302,22 +306,22 @@ class Controller
 
         $i = 0;
 
-        foreach ($controllerResponse as $key => $item) {
-            if (in_array('textToSpeech', array_keys($item))) {
-                $response->fulfillmentText = $item["textToSpeech"];
+
+            if (in_array('textToSpeech', array_keys($controllerResponse))) {
+                $response->fulfillmentText = $controllerResponse["textToSpeech"];
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
                 $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->textToSpeech = [
-                    $item["textToSpeech"],
+                    $controllerResponse["textToSpeech"],
                 ];
             }
-            if (in_array('ssml', array_keys($item))) {
-                $response->fulfillmentText = $item["text"];
+            if (in_array('ssml', array_keys($controllerResponse))) {
+                $response->fulfillmentText = $controllerResponse["text"];
                 $response->fulfillmentMessages[$i]->platform = "ACTIONS_ON_GOOGLE";
-                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $item["ssml"] . '">' . $item["text"] . ' </audio></speak>';
+                $response->fulfillmentMessages[$i]->simpleResponses->simpleResponses[]->ssml = '<speak> <audio src="https://obscure-cove-59185.herokuapp.com/web/sound/' . $controllerResponse["ssml"] . '">' . $controllerResponse["text"] . ' </audio></speak>';
 
             }
             $i++;
-        }
+
 
 
         $response->source = "webhook";
