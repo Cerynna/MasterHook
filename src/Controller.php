@@ -10,6 +10,7 @@ namespace MasterHook;
 
 use DateTime;
 use function implode;
+use const PHP_EOL;
 use Symfony\Component\HttpFoundation\Request;
 use function var_dump;
 
@@ -269,12 +270,27 @@ class Controller
         return $returnFromBot;
     }
     public function quizAction($actions){
-        $returnFromBot[] =
-            [
-                "textToSpeech" => "Bienvenue sur le Quiz",
-                "action" => "quiz-arthur-1",
-                "prevAction" => implode('-', $actions),
-            ];
+
+        if ($actions[0] != "quiz")
+        {
+            $returnFromBot[] =
+                [
+                    "textToSpeech" => "Bienvenue sur le Quiz" . PHP_EOL . "Dit 'commencer' pour débuter le jeux",
+                    "action" => "quiz-menu",
+                    "prevAction" => implode('-', $actions),
+                ];
+        }
+        else{
+            $returnFromBot[] =
+                [
+                    "textToSpeech" => "Bienvenue sur le Quiz",
+                    "action" => "quiz-menu",
+                    "prevAction" => implode('-', $actions),
+                ];
+        }
+
+
+
         return $returnFromBot;
     }
     public function checkIntent($intents, $type, $queryUser)
@@ -426,6 +442,9 @@ class Controller
                 //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                 $this->setResponse($this->quizAction($actions));
 
+            }
+            if ($resPonseFromHooks[0] == "default" AND $actions[0] == "quiz") {
+                $this->setResponse($this->quizAction($actions));
             }
             if ($resPonseFromHooks[0] == "default") {
                 $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
