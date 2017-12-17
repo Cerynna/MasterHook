@@ -297,7 +297,15 @@ class Controller
                     {
                         $pos = strpos(" " . $queryUser, $actions[2]);
 
-                        $returnFromBot[] = $this->getQuestion($actions);
+
+                        if ($pos != 0) {
+                            $verifAnswer = "Bonne réponse" . PHP_EOL ;
+                        }
+                        else {
+                            $verifAnswer = "Bonne réponse" . PHP_EOL ;
+                        }
+
+                        $returnFromBot[] = $this->getQuestion($verifAnswer,$actions);
                     }
                     else {
                         $returnFromBot[] =
@@ -328,14 +336,14 @@ class Controller
         return $returnFromBot;
     }
 
-    public function getQuestion($actions)
+    public function getQuestion($verifAnswer = "",$actions)
     {
         $this->database->getData("hero", $questions);
         $answer = array_rand($questions);
         $question = array_rand($questions[$answer]);
         return
             [
-                "textToSpeech" => $questions[$answer][$question]["text"],
+                "textToSpeech" => $verifAnswer . $questions[$answer][$question]["text"],
                 "action" => "quiz-game-$answer-$question-" . ($actions[4]+1),
                 "prevAction" => implode('-', $actions),
 
