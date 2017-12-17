@@ -474,8 +474,7 @@ class Controller
                 $this->setResponse($this->quizAction($actions));
 
             }
-            var_dump($actions);
-            var_dump($resPonseFromHooks);
+
             if ($resPonseFromHooks[0] == "default" AND $actions[0] == "quiz") {
                 $this->setResponse($this->quizAction($actions));
             }
