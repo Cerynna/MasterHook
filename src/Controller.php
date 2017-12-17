@@ -275,7 +275,7 @@ class Controller
         {
             $returnFromBot[] =
                 [
-                    "textToSpeech" => "Bienvenue sur le Quiz" . PHP_EOL . "Dit 'commencer' pour débuter le jeux",
+                    "textToSpeech" => "Bienvenue sur le Quiz !" . PHP_EOL . "Dit 'commencer' pour débuter le jeux",
                     "action" => "quiz-menu",
                     "prevAction" => implode('-', $actions),
                 ];
@@ -283,8 +283,8 @@ class Controller
         else{
             $returnFromBot[] =
                 [
-                    "textToSpeech" => "Bienvenue sur le Quiz",
-                    "action" => "quiz-menu",
+                    "textToSpeech" => "Premiere question",
+                    "action" => "quiz-game-arthur-1-1",
                     "prevAction" => implode('-', $actions),
                 ];
         }
