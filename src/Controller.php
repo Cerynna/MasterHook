@@ -301,6 +301,14 @@ class Controller
                     {
                         $returnFromBot[] = $this->getQuestion($actions);
                     }
+                    else {
+                        $returnFromBot[] =
+                            [
+                                "textToSpeech" => "C'est la fin du Quiz !",
+                                "action" => "quiz-menu",
+                                "prevAction" => implode('-', $actions),
+                            ];
+                    }
 
 
                     break;
