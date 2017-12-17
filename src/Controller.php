@@ -302,7 +302,7 @@ class Controller
                             $verifAnswer = "Bonne réponse" . PHP_EOL ;
                         }
                         else {
-                            $verifAnswer = "Bonne réponse" . PHP_EOL ;
+                            $verifAnswer = "mauvaise réponse" . PHP_EOL ;
                         }
 
                         $returnFromBot[] = $this->getQuestion($verifAnswer,$actions);
