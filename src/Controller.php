@@ -8,6 +8,7 @@
 
 namespace MasterHook;
 
+use function array_rand;
 use DateTime;
 use function implode;
 use const PHP_EOL;
@@ -296,14 +297,10 @@ class Controller
 
                     break;
                 case "game":
-
-
-                        $returnFromBot[] =
-                            [
-                                "textToSpeech" => "question",
-                                "action" => "quiz-game-arthur-1-" . ($actions[4]+1),
-                                "prevAction" => implode('-', $actions),
-                            ];
+                    if ($actions[4] <= 10)
+                    {
+                        $returnFromBot[] = $this->getQuestion($actions);
+                    }
 
 
                     break;
@@ -323,6 +320,20 @@ class Controller
 
 
         return $returnFromBot;
+    }
+
+    public function getQuestion($actions)
+    {
+        $this->database->getData("hero", $questions);
+        $answer = array_rand($questions);
+        $question = array_rand($questions[$answer]);
+        return
+            [
+                "textToSpeech" => $questions[$answer][$question]["text"],
+                "action" => "quiz-game-$answer-$question-" . ($actions[4]+1),
+                "prevAction" => implode('-', $actions),
+
+            ];
     }
     public function checkIntent($intents, $type, $queryUser)
     {
