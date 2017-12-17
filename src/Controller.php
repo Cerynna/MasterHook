@@ -281,12 +281,43 @@ class Controller
                 ];
         }
         else{
-            $returnFromBot[] =
-                [
-                    "textToSpeech" => "Premiere question",
-                    "action" => "quiz-game-arthur-1-1",
-                    "prevAction" => implode('-', $actions),
-                ];
+            $queryUser = $this->formatQuery($this->request->queryResult->queryText);
+            switch ($actions[1])
+            {
+                case "menu":
+                    if ($queryUser == "commencer"){
+                        $returnFromBot[] =
+                            [
+                                "textToSpeech" => "Premiere question",
+                                "action" => "quiz-game-arthur-1-1",
+                                "prevAction" => implode('-', $actions),
+                            ];
+                    }
+
+                    break;
+                case "game":
+
+
+                        $returnFromBot[] =
+                            [
+                                "textToSpeech" => "question",
+                                "action" => "quiz-game-arthur-1-" . ($actions[4]+1),
+                                "prevAction" => implode('-', $actions),
+                            ];
+
+
+                    break;
+                default:
+                    $returnFromBot[] =
+                        [
+                            "textToSpeech" => "question",
+                            "action" => "quiz-game-arthur-1-" . ($actions[4]+1),
+                            "prevAction" => implode('-', $actions),
+                        ];
+                    break;
+
+            }
+
         }
 
 
@@ -443,6 +474,8 @@ class Controller
                 $this->setResponse($this->quizAction($actions));
 
             }
+            var_dump($actions);
+            var_dump($resPonseFromHooks);
             if ($resPonseFromHooks[0] == "default" AND $actions[0] == "quiz") {
                 $this->setResponse($this->quizAction($actions));
             }
