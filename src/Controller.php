@@ -469,16 +469,15 @@ class Controller
                 $this->setResponse($this->repeatAction($actions));
             }
             if ($resPonseFromHooks[1] == "quiz") {
-
                 //$this->setResponse($this->checkIntent($actions[1], 'hero', $queryUser));
                 $this->setResponse($this->quizAction($actions));
-
             }
 
             if ($resPonseFromHooks[0] == "default" AND $actions[0] == "quiz") {
                 $this->setResponse($this->quizAction($actions));
             }
-            if ($resPonseFromHooks[0] == "default") {
+
+            elseif ($resPonseFromHooks[0] == "default") {
                 $this->setResponse($this->checkIntent($this->intent, 'hero', $queryUser));
             }
 
