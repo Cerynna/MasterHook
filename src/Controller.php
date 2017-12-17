@@ -287,18 +287,16 @@ class Controller
             {
                 case "menu":
                     if ($queryUser == "commencer"){
-                        $returnFromBot[] =
-                            [
-                                "textToSpeech" => "Premiere question",
-                                "action" => "quiz-game-arthur-1-1",
-                                "prevAction" => implode('-', $actions),
-                            ];
+                        $actions[4] = 0;
+                        $returnFromBot[] = $this->getQuestion($actions);
                     }
 
                     break;
                 case "game":
-                    if ($actions[4] <= 10)
+                    if ($actions[4] <= 9)
                     {
+                        $pos = strpos(" " . $queryUser, $actions[2]);
+
                         $returnFromBot[] = $this->getQuestion($actions);
                     }
                     else {
