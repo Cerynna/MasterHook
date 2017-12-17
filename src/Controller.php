@@ -288,7 +288,7 @@ class Controller
                 case "menu":
                     if ($queryUser == "commencer"){
                         $actions[4] = 0;
-                        $returnFromBot[] = $this->getQuestion($actions);
+                        $returnFromBot[] = $this->getQuestion("",$actions);
                     }
 
                     break;
